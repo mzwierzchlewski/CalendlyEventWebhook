@@ -8,19 +8,19 @@ using CalendlyEventWebhook.Models;
 
 namespace CalendlyEventWebhook.Services;
 
-internal class CalendlyService
+internal class CalendlyService : ICalendlyService
 {
     private static CalendlyResourceIdentifier? _currentUserIdCache;
 
     private static readonly SemaphoreSlim CurrentUserIdCacheLock = new(1, 1);
 
-    private readonly CalendlyIdService _calendlyIdService;
+    private readonly ICalendlyIdService _calendlyIdService;
 
     private readonly CalendlyClient _client;
 
     private readonly CalendlyConfiguration _configuration;
 
-    public CalendlyService(CalendlyConfiguration configuration, CalendlyClient client, CalendlyIdService calendlyIdService)
+    public CalendlyService(CalendlyConfiguration configuration, CalendlyClient client, ICalendlyIdService calendlyIdService)
     {
         _configuration = configuration;
         _client = client;

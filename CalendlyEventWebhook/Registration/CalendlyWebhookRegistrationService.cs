@@ -30,13 +30,13 @@ internal class CalendlyWebhookRegistrationService : BackgroundService
         }
 
         using var scope = _serviceScopeFactory.CreateScope();
-        var calendlyService = scope.ServiceProvider.GetRequiredService<CalendlyService>();
+        var calendlyService = scope.ServiceProvider.GetRequiredService<ICalendlyService>();
 
         await HandleExistingSubscriptions(calendlyService, stoppingToken);
         await HandleNewSubscription(calendlyService);
     }
 
-    private async Task HandleExistingSubscriptions(CalendlyService calendlyService, CancellationToken stoppingToken)
+    private async Task HandleExistingSubscriptions(ICalendlyService calendlyService, CancellationToken stoppingToken)
     {
         async Task RemoveWebhookSubscription(CalendlyWebhook webhook)
         {
@@ -71,8 +71,8 @@ internal class CalendlyWebhookRegistrationService : BackgroundService
             }
         }
     }
-    
-    private async Task HandleNewSubscription(CalendlyService calendlyService)
+
+    private async Task HandleNewSubscription(ICalendlyService calendlyService)
     {
         if (_configuration.Webhook.SkipWebhookCreation)
         {
