@@ -2,6 +2,8 @@
 
 namespace CalendlyEventWebhook.CalendlyApi.Dtos;
 
+#nullable disable
+
 internal class UserDto
 {
     [JsonProperty("resource")]
@@ -16,3 +18,5 @@ internal class UserDto
         public string OrganizationUri { get; set; }
     }
 }
+
+#nullable restore

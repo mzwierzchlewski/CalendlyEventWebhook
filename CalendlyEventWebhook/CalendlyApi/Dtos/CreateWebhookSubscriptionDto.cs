@@ -3,6 +3,8 @@ using Newtonsoft.Json.Converters;
 
 namespace CalendlyEventWebhook.CalendlyApi.Dtos;
 
+#nullable disable
+
 internal class CreateWebhookSubscriptionDto
 {
     [JsonProperty("url")]
@@ -44,3 +46,5 @@ internal class CreateWebhookSubscriptionDto
             SigningKey = signingKey,
         };
 }
+
+#nullable restore

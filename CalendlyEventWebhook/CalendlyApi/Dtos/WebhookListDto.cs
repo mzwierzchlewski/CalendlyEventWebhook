@@ -2,6 +2,8 @@
 
 namespace CalendlyEventWebhook.CalendlyApi.Dtos;
 
+#nullable disable
+
 internal class WebhookListDto
 {
     [JsonProperty("collection")]
@@ -10,3 +12,5 @@ internal class WebhookListDto
     [JsonProperty("pagination")]
     public PaginationDto Pagination { get; set; }
 }
+
+#nullable restore

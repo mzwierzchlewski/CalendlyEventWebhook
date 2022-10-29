@@ -2,6 +2,8 @@
 
 namespace CalendlyEventWebhook.CalendlyApi.Dtos;
 
+#nullable disable
+
 internal class EventDto
 {
     [JsonProperty("resource")]
@@ -19,3 +21,5 @@ internal class EventDto
         public DateTime EndTime { get; set; }
     }
 }
+
+#nullable restore

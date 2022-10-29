@@ -3,6 +3,8 @@ using Newtonsoft.Json.Converters;
 
 namespace CalendlyEventWebhook.CalendlyApi.Dtos;
 
+#nullable disable
+
 internal class WebhookDto
 {
     [JsonProperty("uri")]
@@ -18,3 +20,5 @@ internal class WebhookDto
     [JsonProperty("events", ItemConverterType = typeof(StringEnumConverter))]
     public IReadOnlyCollection<WebhookEvent> Events { get; set; }
 }
+
+#nullable restore
