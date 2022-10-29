@@ -22,8 +22,9 @@ public static class ServiceCollectionExtensions
             .AddTransientHttpErrorPolicy(
                 policyBuilder => policyBuilder.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(0.25)));
 
-        services.AddSingleton(calendlyConfiguration.Webhook);
+        services.AddSingleton(calendlyConfiguration);
         services.AddSingleton<CalendlyIdService>();
+        services.AddScoped<CalendlyService>();
 
         return services;
     }

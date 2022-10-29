@@ -45,7 +45,6 @@ internal class CalendlyClient
         }
     }
 
-    public async Task<UserDto?> CetCurrentUser()
     public async Task<UserDto?> GetCurrentUser()
     {
         try
@@ -112,7 +111,7 @@ internal class CalendlyClient
         }
     }
 
-    public async Task<bool> CreateWebhookSubscription(string callbackUrl, WebhookScope scope, string uri, string signingKey, params WebhookEvent[] webhookEvents)
+    public async Task<bool> CreateWebhookSubscription(string callbackUrl, WebhookScope scope, string uri, string signingKey, IReadOnlyCollection<WebhookEvent> webhookEvents)
     {
         try
         {

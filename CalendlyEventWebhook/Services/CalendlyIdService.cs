@@ -4,9 +4,15 @@ namespace CalendlyEventWebhook.Services;
 
 internal class CalendlyIdService
 {
-    public CalendlyResourceIdentifier? GetIdFromOrganisationUri(string organisationUri) => GetIdFromLatUriSegment(organisationUri);
+    public CalendlyResourceIdentifier? GetIdFromEventUri(string eventUri) => GetIdFromLastUriSegment(eventUri);
 
-    private CalendlyResourceIdentifier? GetIdFromLatUriSegment(string uri)
+    public CalendlyResourceIdentifier? GetIdFromWebhookUri(string webhookUri) => GetIdFromLastUriSegment(webhookUri);
+    
+    public CalendlyResourceIdentifier? GetIdFromUserUri(string userUri) => GetIdFromLastUriSegment(userUri);
+    
+    public CalendlyResourceIdentifier? GetIdFromOrganisationUri(string organisationUri) => GetIdFromLastUriSegment(organisationUri);
+
+    private CalendlyResourceIdentifier? GetIdFromLastUriSegment(string uri)
     {
         var id = uri.Split('/').LastOrDefault();
         if (string.IsNullOrEmpty(id))

@@ -24,7 +24,7 @@ internal class CreateWebhookSubscriptionDto
     [JsonProperty("signing_key")]
     public string SigningKey { get; private set; }
 
-    public static CreateWebhookSubscriptionDto OrganisationDto(string callbackUrl, string organisationUri, string signingKey, WebhookEvent[] events)
+    public static CreateWebhookSubscriptionDto OrganisationDto(string callbackUrl, string organisationUri, string signingKey, IReadOnlyCollection<WebhookEvent> events)
         => new()
         {
             CallbackUrl = callbackUrl,
@@ -34,7 +34,7 @@ internal class CreateWebhookSubscriptionDto
             SigningKey = signingKey,
         };
 
-    public static CreateWebhookSubscriptionDto UserDto(string callbackUrl, string userUri, string signingKey, WebhookEvent[] events)
+    public static CreateWebhookSubscriptionDto UserDto(string callbackUrl, string userUri, string signingKey, IReadOnlyCollection<WebhookEvent> events)
         => new()
         {
             CallbackUrl = callbackUrl,

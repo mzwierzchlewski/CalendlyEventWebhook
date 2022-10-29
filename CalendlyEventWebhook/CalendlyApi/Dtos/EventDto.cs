@@ -9,6 +9,9 @@ internal class EventDto
 
     public class ResourceDto
     {
+        [JsonProperty("uri")]
+        public string Uri { get; set; }
+        
         [JsonProperty("start_time")]
         public DateTime StartTime { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace CalendlyEventWebhook.Models;
 
-internal enum CalendlyWebhookScope
+internal enum CalendlyScope
 {
     User,
     Organisation,
