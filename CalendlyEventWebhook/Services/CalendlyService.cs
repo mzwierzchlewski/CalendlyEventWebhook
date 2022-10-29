@@ -12,13 +12,13 @@ internal class CalendlyService
 {
     private static CalendlyResourceIdentifier? _currentUserIdCache;
 
-    private static readonly SemaphoreSlim CurrentUserIdCacheLock = new (1, 1);
-
-    private readonly CalendlyConfiguration _configuration;
-    
-    private readonly CalendlyClient _client;
+    private static readonly SemaphoreSlim CurrentUserIdCacheLock = new(1, 1);
 
     private readonly CalendlyIdService _calendlyIdService;
+
+    private readonly CalendlyClient _client;
+
+    private readonly CalendlyConfiguration _configuration;
 
     public CalendlyService(CalendlyConfiguration configuration, CalendlyClient client, CalendlyIdService calendlyIdService)
     {
@@ -37,15 +37,15 @@ internal class CalendlyService
 
         var id = _calendlyIdService.GetIdFromEventUri(eventDto.Resource.Uri) ?? throw new InvalidOperationException("Failed to retrieve identifier from event uri");
         return new CalendlyEventDetails(id, eventDto.Resource.StartTime, eventDto.Resource.EndTime);
-    } 
-    
-    public async Task<bool> CreateWebhookSubscription(string callbackUrl, string signingKey, params CalendlyWebhookEvent[] events)
+    }
+
+    public async Task<bool> CreateWebhookSubscription(string callbackUrl, string signingKey, IReadOnlyCollection<CalendlyWebhookEvent> events)
     {
         var userId = await GetCurrentUserId();
 
         return await _client.CreateWebhookSubscription(callbackUrl, _configuration.Scope.ToWebhookScope(), userId.Uri, signingKey, events.ToWebhookEvents());
     }
-    
+
     public async IAsyncEnumerable<CalendlyWebhook> ListWebhookSubscriptions([EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var userId = await GetCurrentUserId();
@@ -55,7 +55,7 @@ internal class CalendlyService
             yield return new CalendlyWebhook(webhookId, webhook.CallbackUrl, webhook.State.ToCalendlyWebhookState(), webhook.Events.ToCalendlyWebhookEvents());
         }
     }
-    
+
     public async Task<bool> DeleteWebhookSubscription(CalendlyResourceIdentifier webhookId) => await _client.DeleteWebhookSubscription(webhookId.Uri);
 
     private async Task<CalendlyResourceIdentifier> GetCurrentUserId()
@@ -64,7 +64,7 @@ internal class CalendlyService
         {
             return _currentUserIdCache;
         }
-        
+
         await CurrentUserIdCacheLock.WaitAsync();
         if (_currentUserIdCache == null)
         {
@@ -79,9 +79,9 @@ internal class CalendlyService
                 };
             }
         }
-        
+
         CurrentUserIdCacheLock.Release();
-        
+
         return _currentUserIdCache ?? throw new InvalidOperationException("Failed to get current user information");
     }
 }
@@ -92,9 +92,9 @@ internal static class CalendlyExtensions
     {
         CalendlyScope.User         => WebhookScope.User,
         CalendlyScope.Organisation => WebhookScope.Organisation,
-        _                                 => throw new ArgumentOutOfRangeException(nameof(scope), scope, "Invalid Calendly webhook scope"),
+        _                          => throw new ArgumentOutOfRangeException(nameof(scope), scope, "Invalid Calendly webhook scope"),
     };
-    
+
     public static CalendlyWebhookState ToCalendlyWebhookState(this WebhookState state) => state switch
     {
         WebhookState.Active   => CalendlyWebhookState.Active,

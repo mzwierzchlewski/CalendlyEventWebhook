@@ -7,9 +7,9 @@ internal class CalendlyIdService
     public CalendlyResourceIdentifier? GetIdFromEventUri(string eventUri) => GetIdFromLastUriSegment(eventUri);
 
     public CalendlyResourceIdentifier? GetIdFromWebhookUri(string webhookUri) => GetIdFromLastUriSegment(webhookUri);
-    
+
     public CalendlyResourceIdentifier? GetIdFromUserUri(string userUri) => GetIdFromLastUriSegment(userUri);
-    
+
     public CalendlyResourceIdentifier? GetIdFromOrganisationUri(string organisationUri) => GetIdFromLastUriSegment(organisationUri);
 
     private CalendlyResourceIdentifier? GetIdFromLastUriSegment(string uri)

@@ -1,4 +1,5 @@
 ﻿using CalendlyEventWebhook.CalendlyApi;
+using CalendlyEventWebhook.Registration;
 using CalendlyEventWebhook.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(calendlyConfiguration);
         services.AddSingleton<CalendlyIdService>();
         services.AddScoped<CalendlyService>();
+
+        if (calendlyConfiguration.Webhook.SkipWebhookCreation && !calendlyConfiguration.Webhook.CleanupAllExistingWebhooks)
+        {
+            services.AddHostedService<CalendlyWebhookRegistrationService>();
+        }
 
         return services;
     }
