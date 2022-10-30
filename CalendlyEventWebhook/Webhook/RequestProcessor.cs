@@ -40,12 +40,12 @@ internal class RequestProcessor : IRequestProcessor
             return false;
         }
 
-        return (dto.Event, dto.Payload.Rescheduled) switch
+        return (dto.Event, IsRescheduling(dto)) switch
         {
             (Event.EventCreated, false)   => await ProcessEventCreation(dto),
             (Event.EventCancelled, true)  => await ProcessEventRescheduling(dto),
             (Event.EventCancelled, false) => await ProcessEventCancellation(dto),
-            _                             => ProcessInvalidPayload(),
+            _                             => true,
         };
     }
 
@@ -92,9 +92,18 @@ internal class RequestProcessor : IRequestProcessor
         return await _eventCancellationHandler.Handle(id);
     }
 
-    private bool ProcessInvalidPayload()
+    private static bool IsRescheduling(WebhookDto dto)
     {
-        _logger.LogWarning("Invalid webhook request payload (event/rescheduled combination)");
+        if (dto.Event == Event.EventCancelled && dto.Payload.Rescheduled)
+        {
+            return true;
+        }
+        
+        if (dto.Event == Event.EventCreated && !string.IsNullOrEmpty(dto.Payload.OldInviteeUri))
+        {
+            return true;
+        }
+
         return false;
     }
 }

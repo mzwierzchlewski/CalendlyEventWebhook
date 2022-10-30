@@ -11,6 +11,9 @@ internal class PayloadDto
 
     [JsonProperty("new_invitee")]
     public string NewInviteeUri { get; set; }
+    
+    [JsonProperty("old_invitee")]
+    public string OldInviteeUri { get; set; }
 
     [JsonProperty("rescheduled")]
     public bool Rescheduled { get; set; }

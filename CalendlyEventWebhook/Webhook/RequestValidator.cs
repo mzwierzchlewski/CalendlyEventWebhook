@@ -55,7 +55,8 @@ internal class RequestValidator : IRequestValidator
             return false;
         }
 
-        if (string.IsNullOrEmpty(dto.Payload?.EventUri) || string.IsNullOrEmpty(dto.Payload?.NewInviteeUri))
+        if (string.IsNullOrEmpty(dto.Payload?.EventUri) ||
+            (dto.Event == Event.EventCancelled && dto.Payload.Rescheduled && string.IsNullOrEmpty(dto.Payload.NewInviteeUri)))
         {
             _logger.LogWarning("Invalid values of Calendly webhook request dto");
             return false;
