@@ -29,7 +29,7 @@ internal static class Constants
 
     public static class WebhookSignature
     {
-        public static readonly string DataFormat = $"{nameof(SignatureCalculator.SignatureDataParameters.Timestamp)}.{nameof(SignatureCalculator.SignatureDataParameters.Body)}";
+        public static readonly string DataFormat = $"{{{nameof(SignatureCalculator.SignatureDataParameters.Timestamp)}}}.{{{nameof(SignatureCalculator.SignatureDataParameters.Body)}}}";
 
         public static class Header
         {
