@@ -1,4 +1,5 @@
 ﻿using CalendlyEventWebhook.Configuration;
+using CalendlyEventWebhook.Webhook.Dtos;
 using Microsoft.Extensions.Logging;
 
 namespace CalendlyEventWebhook.Webhook;
@@ -84,6 +85,6 @@ internal class RequestValidator : IRequestValidator
 
         var calculatedSignature = _webhookSignatureCalculator.Calculate(requestTimestamp, requestContent, _signingKey);
 
-        return calculatedSignature == requestSignature.Value.Signature;
+        return string.Compare(calculatedSignature,requestSignature.Value.Signature, StringComparison.InvariantCultureIgnoreCase) == 0;
     }
 }
