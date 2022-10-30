@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace CalendlyEventWebhook.Webhook;
 
 internal class RequestHandlerMiddleware
 {
+    [SuppressMessage("ReSharper", "NotAccessedField.Local", Justification = "Middleware handles the request and returns a response")]
     private readonly RequestDelegate _next;
     
     private readonly ILogger<RequestHandlerMiddleware> _logger;

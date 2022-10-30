@@ -1,27 +1,68 @@
-﻿using CalendlyEventWebhook.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using CalendlyEventWebhook.Models;
 
 namespace CalendlyEventWebhook.Configuration;
 
-internal class CalendlyConfiguration
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "Instance created from JSON")]
+[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global", Justification = "Instance created from JSON")]
+internal class UserCalendlyConfiguration
 {
     public static string SettingsKey => Constants.Configuration.SettingsKey;
 
-    public string AccessToken { get; set; }
+    public string? AccessToken { get; set; }
 
-    public CalendlyScope Scope { get; set; }
+    public CalendlyScope? Scope { get; set; }
 
-    public CalendlyWebhookConfiguration Webhook { get; set; }
+    public UserCalendlyWebhookConfiguration? Webhook { get; set; }
+    
+    internal class UserCalendlyWebhookConfiguration
+    {
+        public bool? CleanupAllExistingWebhooks { get; set; }
+
+        public bool? SkipWebhookCreation { get; set; }
+
+        public bool? EventCreation { get; set; }
+
+        public string? CallbackUrl { get; set; }
+
+        public string? SigningKey { get; set; }
+    }
 }
 
-internal class CalendlyWebhookConfiguration
+internal class CalendlyConfiguration
 {
-    public bool CleanupAllExistingWebhooks { get; set; }
+    public string AccessToken { get; }
 
-    public bool SkipWebhookCreation { get; set; }
+    public CalendlyScope Scope { get; }
 
-    public bool EventCreation { get; set; }
+    public CalendlyWebhookConfiguration Webhook { get; }
 
-    public string CallbackUrl { get; set; }
+    public CalendlyConfiguration(UserCalendlyConfiguration? userCalendlyConfiguration)
+    {
+        AccessToken = !string.IsNullOrEmpty(userCalendlyConfiguration?.AccessToken) ? userCalendlyConfiguration.AccessToken : string.Empty;
+        Scope = userCalendlyConfiguration?.Scope ?? CalendlyScope.User;
+        Webhook = new CalendlyWebhookConfiguration(userCalendlyConfiguration?.Webhook);
+    }
 
-    public string SigningKey { get; set; }
+    internal class CalendlyWebhookConfiguration
+    {
+        public bool CleanupAllExistingWebhooks { get; }
+
+        public bool SkipWebhookCreation { get; }
+
+        public bool EventCreation { get; }
+
+        public string CallbackUrl { get; }
+
+        public string SigningKey { get; }
+
+        public CalendlyWebhookConfiguration(UserCalendlyConfiguration.UserCalendlyWebhookConfiguration? userConfiguration)
+        {
+            CleanupAllExistingWebhooks = userConfiguration?.CleanupAllExistingWebhooks ?? false;
+            SkipWebhookCreation = userConfiguration?.SkipWebhookCreation ?? false;
+            EventCreation = userConfiguration?.EventCreation ?? false;
+            CallbackUrl = !string.IsNullOrEmpty(userConfiguration?.CallbackUrl) ? userConfiguration.CallbackUrl : string.Empty;
+            SigningKey = !string.IsNullOrEmpty(userConfiguration?.SigningKey) ? userConfiguration.SigningKey : string.Empty;
+        }
+    }
 }

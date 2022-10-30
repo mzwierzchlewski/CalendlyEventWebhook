@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using CalendlyEventWebhook.Models;
+﻿using CalendlyEventWebhook.Models;
 
 namespace CalendlyEventWebhook.Services;
 

@@ -18,12 +18,13 @@ public static class Installer
 {
     public static IServiceCollection AddCalendlyEventWebhook(this IServiceCollection services, IConfiguration configuration)
     {
-        var calendlyConfiguration = configuration.GetSection(CalendlyConfiguration.SettingsKey).Get<CalendlyConfiguration>();
-        if (calendlyConfiguration == null)
+        var userCalendlyConfiguration = configuration.GetSection(UserCalendlyConfiguration.SettingsKey).Get<UserCalendlyConfiguration>();
+        if (userCalendlyConfiguration == null)
         {
             return services;
         }
 
+        var calendlyConfiguration = new CalendlyConfiguration(userCalendlyConfiguration);
         services
             .AddHttpClient<CalendlyClient>(
                 client => CalendlyClient.ConfigureCalendlyHttpClient(client, calendlyConfiguration.AccessToken))

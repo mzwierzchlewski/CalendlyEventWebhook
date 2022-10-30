@@ -160,15 +160,15 @@ internal class CalendlyClient
         }
     }
 
-    internal static void ConfigureCalendlyHttpClient(HttpClient client, string organisationAccessToken)
+    internal static void ConfigureCalendlyHttpClient(HttpClient client, string accessToken)
     {
-        if (string.IsNullOrEmpty(organisationAccessToken))
+        if (string.IsNullOrEmpty(accessToken))
         {
-            throw new ArgumentNullException(nameof(organisationAccessToken));
+            throw new ArgumentNullException(nameof(accessToken));
         }
 
         client.BaseAddress = new Uri(Constants.Http.CalendlyApiUrl);
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.Http.BearerAuthenticationScheme, organisationAccessToken);
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(Constants.Http.BearerAuthenticationScheme, accessToken);
     }
 
     private static JsonSerializerSettings GetJsonSerializerSettings()
