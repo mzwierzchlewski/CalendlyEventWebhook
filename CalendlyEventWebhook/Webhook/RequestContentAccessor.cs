@@ -7,13 +7,15 @@ namespace CalendlyEventWebhook.Webhook;
 
 internal class RequestContentAccessor : IRequestContentAccessor
 {
+    private static readonly TimeSpan LockTimeOut = TimeSpan.FromSeconds(1);
+    
     private string? _requestBody;
     
-    private static readonly SemaphoreSlim RequestBodyLock = new(1);
+    private static readonly SemaphoreSlim RequestBodyLock = new(1, 1);
     
     private WebhookDto? _requestDto;
 
-    private static readonly SemaphoreSlim RequestDtoLock = new(1);
+    private static readonly SemaphoreSlim RequestDtoLock = new(1, 1);
 
     private readonly IHttpContextAccessor _httpContextAccessor;
     
@@ -31,7 +33,12 @@ internal class RequestContentAccessor : IRequestContentAccessor
         {
             try
             {
-                await RequestBodyLock.WaitAsync();
+                var lockSuccess = await RequestBodyLock.WaitAsync(LockTimeOut);
+                if (!lockSuccess)
+                {
+                    _logger.LogWarning("Failed to read Calendly webhook request - could not acquire lock");
+                    return null;
+                }
                 if (!string.IsNullOrEmpty(_requestBody))
                 {
                     return _requestBody;
@@ -56,12 +63,15 @@ internal class RequestContentAccessor : IRequestContentAccessor
                 }
 
                 request.Body.Seek(0, SeekOrigin.Begin);
-                RequestBodyLock.Release();
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to read Calendly webhook request");
                 return null;
+            }
+            finally
+            {
+                RequestBodyLock.Release();
             }
         }
 
@@ -74,7 +84,12 @@ internal class RequestContentAccessor : IRequestContentAccessor
         {
             try
             {
-                await RequestDtoLock.WaitAsync();
+                var lockSuccess = await RequestDtoLock.WaitAsync(LockTimeOut);
+                if (!lockSuccess)
+                {
+                    _logger.LogWarning("Failed to get Calendly webhook dto - could not acquire lock");
+                    return null;
+                }
                 if (_requestDto != null)
                 {
                     return _requestDto;
@@ -83,16 +98,20 @@ internal class RequestContentAccessor : IRequestContentAccessor
                 var serializedBody = await GetString();
                 if (string.IsNullOrEmpty(serializedBody))
                 {
+                    _logger.LogWarning("Failed to get Calendly webhook dto - failed to get request content as string");
                     return null;
                 }
 
                 _requestDto = JsonConvert.DeserializeObject<WebhookDto>(serializedBody);
-                RequestDtoLock.Release();
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Failed to get Calendly webhook dto");
                 return null;
+            }
+            finally
+            {
+                RequestDtoLock.Release();
             }
         }
 
