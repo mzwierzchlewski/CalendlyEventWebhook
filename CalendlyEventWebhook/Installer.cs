@@ -39,6 +39,8 @@ public static class Installer
         services.TryAddScoped<IEventReschedulingHandler, EventReschedulingHandler>();
         services.TryAddScoped<IEventCancellationHandler, EventCancellationHandler>();
 
+        services.AddHttpContextAccessor();
+
         services.AddScoped<IRequestContentAccessor, RequestContentAccessor>();
         services.AddScoped<IRequestProcessor, RequestProcessor>();
         services.AddScoped<IRequestSignatureAccessor, RequestSignatureAccessor>();
