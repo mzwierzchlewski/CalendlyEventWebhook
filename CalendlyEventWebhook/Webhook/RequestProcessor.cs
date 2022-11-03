@@ -17,18 +17,19 @@ internal class RequestProcessor : IRequestProcessor
 
     private readonly IEventReschedulingHandler _eventReschedulingHandler;
 
-    private readonly ILogger<RequestProcessor> _logger;
     private readonly IRequestContentAccessor _requestContentAccessor;
-
+    
+    private readonly ILogger<RequestProcessor> _logger;
+    
     public RequestProcessor(IRequestContentAccessor requestContentAccessor, ICalendlyService calendlyService, ICalendlyIdService calendlyIdService, IEventCreationHandler eventCreationHandler, IEventReschedulingHandler eventReschedulingHandler, IEventCancellationHandler eventCancellationHandler, ILogger<RequestProcessor> logger)
     {
         _requestContentAccessor = requestContentAccessor;
+        _calendlyService = calendlyService;
         _calendlyIdService = calendlyIdService;
         _eventCreationHandler = eventCreationHandler;
         _eventReschedulingHandler = eventReschedulingHandler;
         _eventCancellationHandler = eventCancellationHandler;
         _logger = logger;
-        _calendlyService = calendlyService;
     }
 
     public async Task<bool> Process()
@@ -36,6 +37,7 @@ internal class RequestProcessor : IRequestProcessor
         var dto = await _requestContentAccessor.GetDto();
         if (dto == null)
         {
+            _logger.LogWarning("Failed to get Calendly webhook request dto");
             return false;
         }
 
@@ -53,6 +55,7 @@ internal class RequestProcessor : IRequestProcessor
         var id = _calendlyIdService.GetIdFromEventUri(dto.Payload.EventUri);
         if (id == null)
         {
+            _logger.LogWarning("Failed to get event id from uri: {EventUri}", dto.Payload.EventUri);
             return false;
         }
 
@@ -66,12 +69,14 @@ internal class RequestProcessor : IRequestProcessor
         var oldId = _calendlyIdService.GetIdFromEventUri(dto.Payload.EventUri);
         if (oldId == null)
         {
+            _logger.LogWarning("Failed to get event id from uri: {EventUri}", dto.Payload.EventUri);
             return false;
         }
 
         var newId = _calendlyIdService.GetIdFromInviteeUri(dto.Payload.NewInviteeUri);
         if (newId == null)
         {
+            _logger.LogWarning("Failed to get event id from invitee uri: {EventUri}", dto.Payload.NewInviteeUri);
             return false;
         }
 
@@ -85,6 +90,7 @@ internal class RequestProcessor : IRequestProcessor
         var id = _calendlyIdService.GetIdFromEventUri(dto.Payload.EventUri);
         if (id == null)
         {
+            _logger.LogWarning("Failed to get event id from uri: {EventUri}", dto.Payload.EventUri);
             return false;
         }
 
