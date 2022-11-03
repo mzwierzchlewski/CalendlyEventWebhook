@@ -34,7 +34,7 @@ public static class Installer
         services.AddSingleton(calendlyConfiguration);
         services.AddSingleton<ICalendlyIdService, CalendlyIdService>();
         services.AddScoped<ICalendlyService, CalendlyService>();
-        
+
         services.TryAddScoped<IEventCreationHandler, EventCreationHandler>();
         services.TryAddScoped<IEventReschedulingHandler, EventReschedulingHandler>();
         services.TryAddScoped<IEventCancellationHandler, EventCancellationHandler>();
@@ -54,7 +54,7 @@ public static class Installer
 
         return services;
     }
-    
+
     public static IEndpointRouteBuilder MapCalendlyWebhook(this IEndpointRouteBuilder endpoints)
     {
         var app = endpoints.CreateApplicationBuilder();
@@ -63,7 +63,7 @@ public static class Installer
         {
             return endpoints;
         }
-            
+
         var webhookUrl = new Uri(calendlyConfiguration.Webhook.CallbackUrl);
         var webhookDelegate = app.UseMiddleware<RequestHandlerMiddleware>().Build();
         endpoints.MapPost(webhookUrl.AbsolutePath, webhookDelegate);

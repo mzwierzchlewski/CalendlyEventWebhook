@@ -8,18 +8,18 @@ namespace CalendlyEventWebhook.Webhook;
 internal class RequestContentAccessor : IRequestContentAccessor
 {
     private static readonly TimeSpan LockTimeOut = TimeSpan.FromSeconds(1);
-    
-    private string? _requestBody;
-    
+
     private static readonly SemaphoreSlim RequestBodyLock = new(1, 1);
-    
-    private WebhookDto? _requestDto;
 
     private static readonly SemaphoreSlim RequestDtoLock = new(1, 1);
 
     private readonly IHttpContextAccessor _httpContextAccessor;
-    
+
     private readonly ILogger<RequestContentAccessor> _logger;
+
+    private string? _requestBody;
+
+    private WebhookDto? _requestDto;
 
     public RequestContentAccessor(IHttpContextAccessor httpContextAccessor, ILogger<RequestContentAccessor> logger)
     {
@@ -39,6 +39,7 @@ internal class RequestContentAccessor : IRequestContentAccessor
                     _logger.LogWarning("Failed to read Calendly webhook request - could not acquire lock");
                     return null;
                 }
+
                 if (!string.IsNullOrEmpty(_requestBody))
                 {
                     return _requestBody;
@@ -90,6 +91,7 @@ internal class RequestContentAccessor : IRequestContentAccessor
                     _logger.LogWarning("Failed to get Calendly webhook dto - could not acquire lock");
                     return null;
                 }
+
                 if (_requestDto != null)
                 {
                     return _requestDto;

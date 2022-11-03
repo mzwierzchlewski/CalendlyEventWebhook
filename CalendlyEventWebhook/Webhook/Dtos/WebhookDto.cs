@@ -8,7 +8,7 @@ internal class WebhookDto
 {
     [JsonProperty("event")]
     public Event Event { get; set; }
-    
+
     [JsonProperty("payload")]
     public PayloadDto Payload { get; set; }
 }

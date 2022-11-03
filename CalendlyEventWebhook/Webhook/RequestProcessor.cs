@@ -7,19 +7,18 @@ namespace CalendlyEventWebhook.Webhook;
 
 internal class RequestProcessor : IRequestProcessor
 {
-    private readonly IRequestContentAccessor _requestContentAccessor;
+    private readonly ICalendlyIdService _calendlyIdService;
 
     private readonly ICalendlyService _calendlyService;
 
-    private readonly ICalendlyIdService _calendlyIdService;
-    
+    private readonly IEventCancellationHandler _eventCancellationHandler;
+
     private readonly IEventCreationHandler _eventCreationHandler;
 
     private readonly IEventReschedulingHandler _eventReschedulingHandler;
 
-    private readonly IEventCancellationHandler _eventCancellationHandler;
-
     private readonly ILogger<RequestProcessor> _logger;
+    private readonly IRequestContentAccessor _requestContentAccessor;
 
     public RequestProcessor(IRequestContentAccessor requestContentAccessor, ICalendlyService calendlyService, ICalendlyIdService calendlyIdService, IEventCreationHandler eventCreationHandler, IEventReschedulingHandler eventReschedulingHandler, IEventCancellationHandler eventCancellationHandler, ILogger<RequestProcessor> logger)
     {
@@ -98,7 +97,7 @@ internal class RequestProcessor : IRequestProcessor
         {
             return true;
         }
-        
+
         if (dto.Event == Event.EventCreated && !string.IsNullOrEmpty(dto.Payload.OldInviteeUri))
         {
             return true;

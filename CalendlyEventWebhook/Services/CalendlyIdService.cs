@@ -29,7 +29,7 @@ internal class CalendlyIdService : ICalendlyIdService
 
         return new CalendlyResourceIdentifier(guid, uri);
     }
-    
+
     private CalendlyResourceIdentifier? GetIdFromNthUriSegment(string uri, int n)
     {
         var uriObject = new Uri(uri);

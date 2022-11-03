@@ -8,7 +8,7 @@ internal class RequestHandlerMiddleware
 {
     [SuppressMessage("ReSharper", "NotAccessedField.Local", Justification = "Middleware handles the request and returns a response")]
     private readonly RequestDelegate _next;
-    
+
     private readonly ILogger<RequestHandlerMiddleware> _logger;
 
     public RequestHandlerMiddleware(RequestDelegate next, ILogger<RequestHandlerMiddleware> logger)

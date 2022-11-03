@@ -6,6 +6,7 @@ namespace CalendlyEventWebhook.Webhook;
 
 internal class RequestValidator : IRequestValidator
 {
+    private readonly ILogger<RequestValidator> _logger;
     private readonly string _signingKey;
 
     private readonly IRequestContentAccessor _webhookRequestContentAccessor;
@@ -13,14 +14,12 @@ internal class RequestValidator : IRequestValidator
     private readonly IRequestSignatureAccessor _webhookRequestSignatureAccessor;
 
     private readonly ISignatureCalculator _webhookSignatureCalculator;
-    
-    private readonly ILogger<RequestValidator> _logger;
 
     public RequestValidator(
-        CalendlyConfiguration configuration, 
-        IRequestSignatureAccessor webhookRequestSignatureAccessor, 
-        IRequestContentAccessor webhookRequestContentAccessor, 
-        ISignatureCalculator webhookSignatureCalculator, 
+        CalendlyConfiguration configuration,
+        IRequestSignatureAccessor webhookRequestSignatureAccessor,
+        IRequestContentAccessor webhookRequestContentAccessor,
+        ISignatureCalculator webhookSignatureCalculator,
         ILogger<RequestValidator> logger)
     {
         _signingKey = configuration.Webhook.SigningKey;
@@ -85,6 +84,6 @@ internal class RequestValidator : IRequestValidator
 
         var calculatedSignature = _webhookSignatureCalculator.Calculate(requestTimestamp, requestContent, _signingKey);
 
-        return string.Compare(calculatedSignature,requestSignature.Value.Signature, StringComparison.InvariantCultureIgnoreCase) == 0;
+        return string.Compare(calculatedSignature, requestSignature.Value.Signature, StringComparison.InvariantCultureIgnoreCase) == 0;
     }
 }

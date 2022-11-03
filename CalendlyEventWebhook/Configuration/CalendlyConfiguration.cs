@@ -14,7 +14,7 @@ internal class UserCalendlyConfiguration
     public CalendlyScope? Scope { get; set; }
 
     public UserCalendlyWebhookConfiguration? Webhook { get; set; }
-    
+
     internal class UserCalendlyWebhookConfiguration
     {
         public bool? CleanupAllExistingWebhooks { get; set; }
