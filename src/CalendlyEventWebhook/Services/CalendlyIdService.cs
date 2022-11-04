@@ -12,7 +12,7 @@ internal class CalendlyIdService : ICalendlyIdService
 
     public CalendlyResourceIdentifier? GetIdFromOrganisationUri(string organisationUri) => GetIdFromLastUriSegment(organisationUri);
 
-    public CalendlyResourceIdentifier? GetIdFromInviteeUri(string inviteeUri) => GetIdFromNthUriSegment(inviteeUri, 2);
+    public CalendlyResourceIdentifier? GetEventIdFromInviteeUri(string inviteeUri) => GetIdFromNthUriSegment(inviteeUri, 2);
 
     private CalendlyResourceIdentifier? GetIdFromLastUriSegment(string uri)
     {

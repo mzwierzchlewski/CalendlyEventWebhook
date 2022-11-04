@@ -10,7 +10,7 @@ namespace CalendlyEventWebhook.Services;
 
 internal class CalendlyService : ICalendlyService
 {
-    private static CalendlyResourceIdentifier? _currentUserIdCache;
+    private static CalendlyUserIdentifier? _currentUserIdCache;
 
     private static readonly SemaphoreSlim CurrentUserIdCacheLock = new(1, 1);
 
@@ -43,13 +43,13 @@ internal class CalendlyService : ICalendlyService
     {
         var userId = await GetCurrentUserId();
 
-        return await _client.CreateWebhookSubscription(callbackUrl, _configuration.Scope.ToWebhookScope(), userId.Uri, signingKey, events.ToWebhookEvents());
+        return await _client.CreateWebhookSubscription(callbackUrl, _configuration.Scope.ToWebhookScope(), userId, signingKey, events.ToWebhookEvents());
     }
 
     public async IAsyncEnumerable<CalendlyWebhook> ListWebhookSubscriptions([EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var userId = await GetCurrentUserId();
-        await foreach (var webhook in _client.ListWebhookSubscriptions(_configuration.Scope.ToWebhookScope(), userId.Uri, cancellationToken))
+        await foreach (var webhook in _client.ListWebhookSubscriptions(_configuration.Scope.ToWebhookScope(), userId, cancellationToken))
         {
             var webhookId = _calendlyIdService.GetIdFromWebhookUri(webhook.Uri) ?? throw new InvalidOperationException("Failed to retrieve identifier from webhook uri");
             yield return new CalendlyWebhook(webhookId, webhook.CallbackUrl, webhook.State.ToCalendlyWebhookState(), webhook.Events.ToCalendlyWebhookEvents());
@@ -58,7 +58,7 @@ internal class CalendlyService : ICalendlyService
 
     public async Task<bool> DeleteWebhookSubscription(CalendlyResourceIdentifier webhookId) => await _client.DeleteWebhookSubscription(webhookId.Uri);
 
-    private async Task<CalendlyResourceIdentifier> GetCurrentUserId()
+    private async Task<CalendlyUserIdentifier> GetCurrentUserId()
     {
         if (_currentUserIdCache != null)
         {
@@ -71,12 +71,28 @@ internal class CalendlyService : ICalendlyService
             var currentUserDto = await _client.GetCurrentUser();
             if (currentUserDto != null)
             {
-                _currentUserIdCache = _configuration.Scope switch
+                var organisationIdentifier = _calendlyIdService.GetIdFromOrganisationUri(currentUserDto.Resource.OrganizationUri);
+                switch (_configuration.Scope)
                 {
-                    CalendlyScope.User         => _calendlyIdService.GetIdFromUserUri(currentUserDto.Resource.Uri),
-                    CalendlyScope.Organisation => _calendlyIdService.GetIdFromOrganisationUri(currentUserDto.Resource.OrganizationUri),
-                    _                          => throw new ArgumentOutOfRangeException(nameof(_configuration.Scope), "Invalid Calendly scope"),
-                };
+                    
+                    case CalendlyScope.User:
+                        var userIdentifier = _calendlyIdService.GetIdFromUserUri(currentUserDto.Resource.Uri);
+                        if (userIdentifier != null && organisationIdentifier != null)
+                        {
+                            _currentUserIdCache = new CalendlyUserIdentifier(userIdentifier, organisationIdentifier);
+                        }
+                        
+                        break;
+                    case CalendlyScope.Organisation:
+                        if (organisationIdentifier != null)
+                        {
+                            _currentUserIdCache = new CalendlyUserIdentifier(organisationIdentifier, organisationIdentifier);
+                        }
+                        
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(_configuration.Scope), "Invalid Calendly scope");
+                }
             }
         }
 

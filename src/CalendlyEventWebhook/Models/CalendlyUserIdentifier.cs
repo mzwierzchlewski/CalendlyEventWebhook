@@ -1,0 +1,3 @@
+﻿namespace CalendlyEventWebhook.Models;
+
+public record CalendlyUserIdentifier(CalendlyResourceIdentifier User, CalendlyResourceIdentifier Organisation);

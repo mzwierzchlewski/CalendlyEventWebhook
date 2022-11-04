@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CalendlyEventWebhook.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace CalendlyEventWebhook.CalendlyApi.Dtos;
@@ -26,24 +27,25 @@ internal class CreateWebhookSubscriptionDto
     [JsonProperty("signing_key")]
     public string SigningKey { get; private set; }
 
-    public static CreateWebhookSubscriptionDto OrganisationDto(string callbackUrl, string organisationUri, string signingKey, IReadOnlyCollection<WebhookEvent> events)
+    public static CreateWebhookSubscriptionDto OrganisationDto(string callbackUrl, CalendlyUserIdentifier userIdentifier, string signingKey, IReadOnlyCollection<WebhookEvent> events)
         => new()
         {
             CallbackUrl = callbackUrl,
             Scope = WebhookScope.Organisation,
-            Organisation = organisationUri,
+            Organisation = userIdentifier.Organisation.Uri,
             Events = events,
             SigningKey = signingKey,
         };
 
-    public static CreateWebhookSubscriptionDto UserDto(string callbackUrl, string userUri, string signingKey, IReadOnlyCollection<WebhookEvent> events)
+    public static CreateWebhookSubscriptionDto UserDto(string callbackUrl, CalendlyUserIdentifier userIdentifier, string signingKey, IReadOnlyCollection<WebhookEvent> events)
         => new()
         {
             CallbackUrl = callbackUrl,
             Scope = WebhookScope.User,
-            User = userUri,
+            User = userIdentifier.User.Uri,
             Events = events,
             SigningKey = signingKey,
+            Organisation = userIdentifier.Organisation.Uri,
         };
 }
 

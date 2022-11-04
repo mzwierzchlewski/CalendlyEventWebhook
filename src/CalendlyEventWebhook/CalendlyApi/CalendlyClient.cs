@@ -3,6 +3,7 @@ using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Text;
 using CalendlyEventWebhook.CalendlyApi.Dtos;
+using CalendlyEventWebhook.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -66,10 +67,14 @@ internal class CalendlyClient
         }
     }
 
-    public async IAsyncEnumerable<WebhookDto> ListWebhookSubscriptions(WebhookScope scope, string uri, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<WebhookDto> ListWebhookSubscriptions(WebhookScope scope, CalendlyUserIdentifier userIdentifier, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var scopeParameter = JsonConvert.SerializeObject(scope, JsonSerializerSettings).Trim('"');
-        var url = string.Format(Constants.Calendly.CalendlyWebhookListUrlFormat, scopeParameter, uri);
+        var url = scope switch
+        {
+            WebhookScope.Organisation => string.Format(Constants.Calendly.CalendlyWebhookListOrganisationUrlFormat, userIdentifier.Organisation.Uri),
+            WebhookScope.User         => string.Format(Constants.Calendly.CalendlyWebhookListUserUrlFormat, userIdentifier.User.Uri, userIdentifier.Organisation.Uri),
+            _                         => throw new ArgumentOutOfRangeException(nameof(scope), "Invalid webhook scope"),
+        };
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -80,20 +85,20 @@ internal class CalendlyClient
                 var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Invalid status code ({StatusCode}) when listing {Scope} webhooks; Response: {ResponseContent}", response.StatusCode, scopeParameter, responseContent);
+                    _logger.LogError("Invalid status code ({StatusCode}) when listing {Scope} webhooks; Response: {ResponseContent}", response.StatusCode, scope, responseContent);
                     yield break;
                 }
 
                 webhookListDto = JsonConvert.DeserializeObject<WebhookListDto>(responseContent);
                 if (webhookListDto == null)
                 {
-                    _logger.LogError("Invalid response when listing {Scope} webhooks: {ResponseContent}", scopeParameter, responseContent);
+                    _logger.LogError("Invalid response when listing {Scope} webhooks: {ResponseContent}", scope, responseContent);
                     yield break;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Exception when listing {Scope} webhooks", scopeParameter);
+                _logger.LogError(ex, "Exception when listing {Scope} webhooks", scope);
                 yield break;
             }
 
@@ -111,14 +116,14 @@ internal class CalendlyClient
         }
     }
 
-    public async Task<bool> CreateWebhookSubscription(string callbackUrl, WebhookScope scope, string uri, string signingKey, IReadOnlyCollection<WebhookEvent> webhookEvents)
+    public async Task<bool> CreateWebhookSubscription(string callbackUrl, WebhookScope scope, CalendlyUserIdentifier userIdentifier, string signingKey, IReadOnlyCollection<WebhookEvent> webhookEvents)
     {
         try
         {
             var requestDto = scope switch
             {
-                WebhookScope.User         => CreateWebhookSubscriptionDto.UserDto(callbackUrl, uri, signingKey, webhookEvents),
-                WebhookScope.Organisation => CreateWebhookSubscriptionDto.OrganisationDto(callbackUrl, uri, signingKey, webhookEvents),
+                WebhookScope.User         => CreateWebhookSubscriptionDto.UserDto(callbackUrl, userIdentifier, signingKey, webhookEvents),
+                WebhookScope.Organisation => CreateWebhookSubscriptionDto.OrganisationDto(callbackUrl, userIdentifier, signingKey, webhookEvents),
                 _                         => throw new ArgumentOutOfRangeException(nameof(scope), scope, "Invalid Calendly webhook scope"),
             };
             var requestContent = new StringContent(JsonConvert.SerializeObject(requestDto, JsonSerializerSettings), Encoding.UTF8, MediaTypeNames.Application.Json);
@@ -126,7 +131,7 @@ internal class CalendlyClient
             var responseString = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("Invalid status code ({StatusCode}) when creating webhook for {Scope}: {Uri}; Response: {ResponseContent}", response.StatusCode, scope.ToString().ToLowerInvariant(), uri, responseString);
+                _logger.LogError("Invalid status code ({StatusCode}) when creating webhook for {Scope}: {Uri}; Response: {ResponseContent}", response.StatusCode, scope.ToString().ToLowerInvariant(), userIdentifier, responseString);
                 return false;
             }
 
@@ -134,7 +139,7 @@ internal class CalendlyClient
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception when creating webhook for {Scope}: {Uri}", scope.ToString().ToLowerInvariant(), uri);
+            _logger.LogError(ex, "Exception when creating webhook for {Scope}: {Uri}", scope.ToString().ToLowerInvariant(), userIdentifier);
             return false;
         }
     }

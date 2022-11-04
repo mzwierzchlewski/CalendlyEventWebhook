@@ -12,5 +12,5 @@ internal interface ICalendlyIdService
 
     CalendlyResourceIdentifier? GetIdFromOrganisationUri(string organisationUri);
 
-    CalendlyResourceIdentifier? GetIdFromInviteeUri(string inviteeUri);
+    CalendlyResourceIdentifier? GetEventIdFromInviteeUri(string inviteeUri);
 }

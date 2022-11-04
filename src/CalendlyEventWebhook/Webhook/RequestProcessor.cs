@@ -73,7 +73,7 @@ internal class RequestProcessor : IRequestProcessor
             return false;
         }
 
-        var newId = _calendlyIdService.GetIdFromInviteeUri(dto.Payload.NewInviteeUri);
+        var newId = _calendlyIdService.GetEventIdFromInviteeUri(dto.Payload.NewInviteeUri);
         if (newId == null)
         {
             _logger.LogWarning("Failed to get event id from invitee uri: {EventUri}", dto.Payload.NewInviteeUri);

@@ -22,7 +22,9 @@ internal static class Constants
 
         public static readonly string CalendlyCurrentUserUrl = "/users/me";
 
-        public static readonly string CalendlyWebhookListUrlFormat = "/webhook_subscriptions?scope={0}&{0}={1}";
+        public static readonly string CalendlyWebhookListOrganisationUrlFormat = "/webhook_subscriptions?scope=organization&organization={0}";
+        
+        public static readonly string CalendlyWebhookListUserUrlFormat = "/webhook_subscriptions?scope=user&user={0}&organization={1}";
 
         public static readonly string CalendlyWebhookUrl = "/webhook_subscriptions";
     }
