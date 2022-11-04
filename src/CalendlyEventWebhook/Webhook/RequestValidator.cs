@@ -6,7 +6,6 @@ namespace CalendlyEventWebhook.Webhook;
 
 internal class RequestValidator : IRequestValidator
 {
-    private readonly ILogger<RequestValidator> _logger;
     private readonly string _signingKey;
 
     private readonly IRequestContentAccessor _webhookRequestContentAccessor;
@@ -14,6 +13,8 @@ internal class RequestValidator : IRequestValidator
     private readonly IRequestSignatureAccessor _webhookRequestSignatureAccessor;
 
     private readonly ISignatureCalculator _webhookSignatureCalculator;
+
+    private readonly ILogger<RequestValidator> _logger;
 
     public RequestValidator(
         CalendlyConfiguration configuration,
@@ -31,7 +32,7 @@ internal class RequestValidator : IRequestValidator
 
     public async Task<bool> Validate()
     {
-        if (!await ValidateSignature())
+        if (ShouldValidateSignature() && !await ValidateSignature())
         {
             _logger.LogWarning("Failed to verify signature of Calendly webhook message");
             return false;
@@ -39,7 +40,7 @@ internal class RequestValidator : IRequestValidator
 
         if (!await ValidateBody())
         {
-            _logger.LogWarning("Failed to read body of Calendly webhook message");
+            _logger.LogWarning("Failed to validate body of Calendly webhook message");
             return false;
         }
 
@@ -64,6 +65,8 @@ internal class RequestValidator : IRequestValidator
 
         return true;
     }
+
+    private bool ShouldValidateSignature() => !string.IsNullOrEmpty(_signingKey);
 
     private async Task<bool> ValidateSignature()
     {
